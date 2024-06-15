@@ -1,0 +1,2 @@
+from database.managers._category_manager import CategoryManager
+from database.managers._product_manager import ProductManager
