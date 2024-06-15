@@ -1,0 +1,2 @@
+class BaseDatabaseException(BaseException):
+    pass
