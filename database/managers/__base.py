@@ -29,8 +29,7 @@ class BaseManager(ManagerInterface, ABC):
             elif key[-11:] == "__not_equal":
                 filters.append(getattr(database_model_type, key[:-11]).__ne__(value))
             elif key[-10:] == "__contains":
-                a = getattr(database_model_type, key[:-10])
-                filters.append(a.contains(value))
+                filters.append(getattr(database_model_type, key[:-10]).contains(value))
             else:
                 filters.append(getattr(database_model_type, key).__eq__(value))
         return filters
