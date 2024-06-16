@@ -1,5 +1,6 @@
 import pytest
 
+from app import App
 from app.tests.fake_database import FakeDatabase
 
 
@@ -16,3 +17,8 @@ def product_manager(fake_database):
 @pytest.fixture
 def category_manager(fake_database):
     return fake_database.get_category_manager()
+
+
+@pytest.fixture
+def app(fake_database):
+    return App(database=fake_database)
