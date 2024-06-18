@@ -3,7 +3,7 @@ from uuid import uuid4
 import pytest
 from sqlalchemy.orm import Session
 
-from app.database_interface.exceptions import NotFound
+from app.database_interface.exceptions import NotFound, Conflict
 from database import Database
 from database.managers import CategoryManager
 from database.models import CategoryDB
@@ -50,6 +50,13 @@ def test_create(category_manager: CategoryManager, db_session: Session):
     assert category_uuid == all_categories[0]
 
 
+def test_create_with_conflict(category_manager: CategoryManager, db_session: Session):
+    category_manager.create(title="title")
+
+    with pytest.raises(Conflict):
+        category_manager.create(title="title")
+
+
 def test_update_by_uuid(category_manager: CategoryManager, db_session: Session):
     database_category = CategoryDB(title="title")
     db_session.add(database_category)
@@ -64,6 +71,17 @@ def test_update_by_uuid(category_manager: CategoryManager, db_session: Session):
 
     database_category = category_manager._get_database_model_by_uuid(uuid=database_category.uuid)
     assert database_category.title == "updated title"
+
+
+def test_update_with_conflict(category_manager: CategoryManager, db_session: Session):
+    category_manager.create(title="conflict title")
+    category_uuid = category_manager.create(title="title")
+
+    with pytest.raises(Conflict):
+        category_manager.update_by_uuid(
+            uuid=category_uuid,
+            title="conflict title",
+        )
 
 
 def test_delete_by_uuid(category_manager: CategoryManager, db_session: Session):

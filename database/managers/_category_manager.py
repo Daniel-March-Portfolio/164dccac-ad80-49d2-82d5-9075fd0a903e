@@ -2,8 +2,9 @@ from typing import Sequence
 from uuid import UUID
 
 from sqlalchemy import select, insert, update
+from sqlalchemy.exc import OperationalError, IntegrityError
 
-from app.database_interface.exceptions import NotFound
+from app.database_interface.exceptions import NotFound, Conflict
 from app.models import Category
 from database.managers.__base import BaseManager
 from database.models import CategoryDB
@@ -57,7 +58,11 @@ class CategoryManager(BaseManager):
         )
 
         session = self._database.get_session()
-        result = session.execute(stmt)
+        try:
+            result = session.execute(stmt)
+        except IntegrityError:
+            session.close()
+            raise Conflict()
         uuid = result.scalar_one()
         session.commit()
 
@@ -72,7 +77,10 @@ class CategoryManager(BaseManager):
         )
 
         session = self._database.get_session()
-        session.execute(stmt)
+        try:
+            session.execute(stmt)
+        except IntegrityError:
+            raise Conflict()
         session.commit()
 
         logic_model = self.get_by_uuid(uuid)
