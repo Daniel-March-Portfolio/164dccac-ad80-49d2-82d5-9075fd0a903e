@@ -1,0 +1,27 @@
+services:
+  api:
+    build: .
+    ports:
+      - 8000:8000
+    environment:
+      RESPONSE_LIST_LENGTH_LIMIT: 10
+      DATABASE_URL: "postgresql+psycopg2://postgres:password@postgres"
+    links:
+      - postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    restart: unless-stopped
+    image: "postgres:15"
+    hostname: "postgres"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 10
+    volumes:
+      - ~/app_postgres:/var/lib/postgresql/data
