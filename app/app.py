@@ -1,3 +1,4 @@
+import os
 from uuid import UUID
 
 from app import exceptions as app_exceptions
@@ -8,7 +9,7 @@ from app.models import Product, Category
 
 
 class App(AppInterface):
-    LIMIT = 10  # Todo move to config file
+    LIMIT = os.getenv("RESPONSE_LIST_LENGTH_LIMIT")
 
     def __init__(self, database: DatabaseInterface):
         self.__database = database
