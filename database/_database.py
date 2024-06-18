@@ -8,7 +8,7 @@ from database.models import BaseModel
 
 class Database(DatabaseInterface):
     def __init__(self, database_url: str):
-        self.__engine = create_engine(database_url, connect_args={"check_same_thread": False})
+        self.__engine = create_engine(database_url)
         BaseModel.metadata.create_all(self.__engine)
         self.__category_manager = CategoryManager(self)
         self.__product_manager = ProductManager(self)
