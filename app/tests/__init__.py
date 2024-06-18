@@ -1,1 +1,1 @@
-from app.tests.fake_database import FakeDatabase, FakeProductManager
+from app.tests.fake_database import FakeDatabase, FakeProductManager, FakeCategoryManager

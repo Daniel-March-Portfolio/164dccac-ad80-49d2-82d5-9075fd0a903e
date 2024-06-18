@@ -3,8 +3,9 @@ from uuid import uuid4
 import pytest
 
 from app.database_interface.exceptions import NotFound
+from app.exceptions import AlreadyInUse
 from app.models import Product
-from app.tests import FakeDatabase, FakeProductManager
+from app.tests import FakeDatabase, FakeProductManager, FakeCategoryManager
 
 
 def test_get_product_by_uuid(fake_database: FakeDatabase, product_manager: FakeProductManager):
@@ -172,3 +173,16 @@ def test_filter_products(fake_database: FakeDatabase, product_manager: FakeProdu
     assert len(product_manager.filter(cost__lower_than=300, offset=0, limit=3)) == 2
 
     assert len(product_manager.filter(category__in=[category1_uuid], offset=0, limit=3)) == 2
+
+
+def test_create_conflict_exception(category_manager: FakeCategoryManager):
+    category_manager.create(title="title")
+    with pytest.raises(AlreadyInUse):
+        category_manager.create(title="title")
+
+
+def test_update_conflict_exception(category_manager: FakeCategoryManager):
+    category_uuid = category_manager.create(title="title")
+    category_manager.create(title="conflict title")
+    with pytest.raises(AlreadyInUse):
+        category_manager.update_by_uuid(uuid=category_uuid, title="conflict title")

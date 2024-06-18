@@ -4,6 +4,7 @@ from uuid import UUID, uuid4
 
 from app.database_interface import DatabaseInterface, ManagerInterface
 from app.database_interface.exceptions import NotFound
+from app.exceptions import AlreadyInUse
 from app.models import LogicModelType, Product, Category
 
 
@@ -99,6 +100,16 @@ class FakeCategoryManager(FakeManager):
         logic_model_data = copy(storage[uuid])
         logic_model = Category(**logic_model_data)
         return logic_model
+
+    def update_by_uuid(self, uuid: UUID, **new_values) -> LogicModelType:
+        if new_values["title"] in [el["title"] for el in self._database.get_session()[self._table].values()]:
+            raise AlreadyInUse("Category title already in use")
+        return super().update_by_uuid(uuid=uuid, **new_values)
+
+    def create(self, **values) -> UUID:
+        if values["title"] in [el["title"] for el in self._database.get_session()[self._table].values()]:
+            raise AlreadyInUse("Category title already in use")
+        return super().create(**values)
 
 
 class FakeDatabase(DatabaseInterface):

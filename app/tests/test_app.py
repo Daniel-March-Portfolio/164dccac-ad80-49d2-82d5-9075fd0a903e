@@ -3,7 +3,7 @@ from uuid import uuid4
 import pytest
 
 from app import AppInterface
-from app.exceptions import CategoryNotFound, ProductNotFound
+from app.exceptions import CategoryNotFound, ProductNotFound, AlreadyInUse
 from app.tests.fake_database import FakeProductManager, FakeCategoryManager
 
 
@@ -187,6 +187,12 @@ def test_create_category(app: AppInterface, category_manager: FakeCategoryManage
     category_uuid = app.create_category(title="title")
     category = category_manager.get_by_uuid(category_uuid)
     assert category.title == "title"
+
+
+def test_create_category_with_conflict(app: AppInterface, category_manager: FakeCategoryManager):
+    app.create_category(title="title")
+    with pytest.raises(AlreadyInUse):
+        app.create_category(title="title")
 
 
 def test_update_category(app: AppInterface, category_manager: FakeCategoryManager):
