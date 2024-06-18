@@ -102,8 +102,9 @@ class FakeCategoryManager(FakeManager):
         return logic_model
 
     def update_by_uuid(self, uuid: UUID, **new_values) -> LogicModelType:
-        if new_values["title"] in [el["title"] for el in self._database.get_session()[self._table].values()]:
-            raise AlreadyInUse("Category title already in use")
+        if "title" in new_values:
+            if new_values["title"] in [el["title"] for el in self._database.get_session()[self._table].values()]:
+                raise AlreadyInUse("Category title already in use")
         return super().update_by_uuid(uuid=uuid, **new_values)
 
     def create(self, **values) -> UUID:

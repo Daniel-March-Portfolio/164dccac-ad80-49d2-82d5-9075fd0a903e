@@ -26,6 +26,14 @@ def test_create_category(client, category_manager):
     assert response.text == str(category_in_database_uuid)
 
 
+def test_create_category_with_conflict(client, category_manager):
+    category_data = {"title": "title"}
+    category_manager.create(**category_data)
+    response = client.post("/api/v1/categories/", json=category_data)
+    assert response.status_code == 409, response.text
+    assert response.text == "Category has used params"
+
+
 def test_update_category(client, category_manager):
     category_data = {"title": "title"}
     category_uuid = category_manager.create(**category_data)
@@ -35,6 +43,17 @@ def test_update_category(client, category_manager):
     response = client.put(f"/api/v1/categories/{category_uuid}", json=new_vales)
     assert response.status_code == 200, response.text
     assert response.json() == new_vales
+
+
+def test_update_category_with_conflict(client, category_manager):
+    category_data = {"title": "title"}
+    new_vales = {"title": "new title"}
+    category_uuid = category_manager.create(**category_data)
+    category_manager.create(**new_vales)
+
+    response = client.put(f"/api/v1/categories/{category_uuid}", json=new_vales)
+    assert response.status_code == 409, response.text
+    assert response.text == "Category has used params"
 
 
 def test_update_category_without_passing_all_fields(client, category_manager):

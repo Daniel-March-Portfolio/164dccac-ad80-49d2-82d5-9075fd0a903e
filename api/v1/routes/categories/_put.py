@@ -4,7 +4,7 @@ from fastapi import Request, Response
 from pydantic import BaseModel
 
 from api.v1.utils import get_app_from_request
-from app.exceptions import CategoryNotFound
+from app.exceptions import CategoryNotFound, AlreadyInUse
 
 
 class CategoryPutSchema(BaseModel):
@@ -20,5 +20,7 @@ async def categories_put(request: Request, uuid: UUID, data: CategoryPutSchema):
         category = app.update_category_by_uuid(uuid=uuid, **category_data)
     except CategoryNotFound:
         return Response(status_code=404, content="Category not found")
+    except AlreadyInUse:
+        return Response(status_code=409, content="Category has used params")
 
     return category.__dict__
