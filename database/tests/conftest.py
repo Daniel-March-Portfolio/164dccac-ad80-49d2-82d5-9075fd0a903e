@@ -5,12 +5,14 @@ from sqlalchemy.orm import Session
 from database import Database
 from database.models import BaseModel
 
-DATABASE_URL = "sqlite:///./test.db"
+DATABASE_URL = "sqlite:///:memory:"
 
 
 @pytest.fixture(scope="function")
-def database(engine):
-    return Database(DATABASE_URL)
+def database(engine, db_session):
+    database = Database(DATABASE_URL)
+    database._Database__engine = engine
+    return database
 
 
 @pytest.fixture(scope="function")
